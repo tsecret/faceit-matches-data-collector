@@ -49,6 +49,8 @@ const syncUsers = async () => {
 app.post('/webhooks/add', (req, res) => {
     const { event, payload } = req.body;
 
+    console.log(`New ${event} request`)
+
     if (event === 'match_status_finished'){
         db.get('matches')
         .push(payload)
