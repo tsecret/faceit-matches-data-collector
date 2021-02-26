@@ -1,6 +1,7 @@
 const localtunnel = require('localtunnel');
-const express = require('express')
-const low = require('lowdb')
+const express = require('express');
+const firebase = require('firebase');
+const low = require('lowdb');
 const cors = require('cors');
 const bodyParser = require('body-parser')
 const FileSync = require('lowdb/adapters/FileSync')
@@ -16,10 +17,12 @@ app.use(bodyParser.json())
 
 const adapter = new FileSync('db.json')
 const db = low(adapter)
+firebase.initializeApp(config.FIREBASE_CONFIG);
 
 db.defaults({ currentUsers: 0, requests: [], matches: [] }).write()
 
 let currentUsers;
+let matches = [];
 
 const init = async () => {
     const tunnel = await localtunnel({ port: config.PORT, subdomain: config.SUBDOMAIN });
@@ -46,20 +49,33 @@ const syncUsers = async () => {
     return await updateWebhooksSettings(settings);
 }
 
-app.post('/webhooks/add', (req, res) => {
+const checkMatches = async () => {
+    if (matches.length >= config.MATCHES_BATCH){
+        const batch = firebase.firestore().batch();
+        matches.forEach(match => { batch.set(firebase.firestore().collection('raw-matches').doc(match.id), match) })
+        await batch.commit();
+        console.log(`Saved ${config.MATCHES_BATCH} matches`);
+        matches = [];
+    }
+}
+
+app.post('/webhooks/add', async (req, res) => {
     const { event, payload } = req.body;
-
-    console.log(`New ${event} request`)
-
+    
+    
     if (event === 'match_status_finished'){
+        console.log(`New ${event} request`)
         db.get('matches')
         .push(payload)
         .write()
+
+        matches.push(payload)
+        await checkMatches();
     }
 
-    db.get('requests')
-    .push({ event, created_at: new Date().getTime(), currentUsers })
-    .write()
+    // db.get('requests')
+    // .push({ event, created_at: new Date().getTime(), currentUsers })
+    // .write()
     return res.status(200).json();
 })
 
