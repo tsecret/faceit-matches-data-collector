@@ -6,9 +6,9 @@ const cors = require('cors');
 const bodyParser = require('body-parser')
 const FileSync = require('lowdb/adapters/FileSync')
 const config = require('./config');
+
 const { getWebhooksSettings, updateWebhooksSettings } = require('./api');
 const { addUsersToSettings, getUsersFromMatch } = require('./utils');
-
 
 const app = express()
 app.use(cors({ origin: true }));
@@ -17,11 +17,8 @@ app.use(bodyParser.json())
 
 const adapter = new FileSync('db.json')
 const db = low(adapter)
-firebase.initializeApp(config.FIREBASE_CONFIG);
+firebase.initializeApp(process.env.FIREBASE_CONFIG);
 
-db.defaults({ currentUsers: 0, requests: [], matches: [] }).write()
-
-let currentUsers;
 let matches = [];
 
 const init = async () => {
@@ -64,18 +61,10 @@ app.post('/webhooks/add', async (req, res) => {
     
     
     if (event === 'match_status_finished'){
-        console.log(`New ${event} request`)
-        db.get('matches')
-        .push(payload)
-        .write()
-
         matches.push(payload)
+        console.log("Match")
         await checkMatches();
     }
-
-    // db.get('requests')
-    // .push({ event, created_at: new Date().getTime(), currentUsers })
-    // .write()
     return res.status(200).json();
 })
 
