@@ -39,6 +39,22 @@ export interface Player {
     anticheat_required: boolean
 }
 
+export interface Match{
+    id: string,
+    organizer_id: string,
+    region: string,
+    game: string,
+    version: number,
+    entity: {
+        id: string,
+        name: string,
+        type: string
+    },
+    teams?: Team[]
+    created_at: string,
+    updated_at: string
+}
+
 export interface Hook {
     transaction_id: string,
     event: string,
@@ -48,19 +64,5 @@ export interface Hook {
     timestamp: string,
     retry_count: number,
     version: number,
-    payload: {
-        id: string,
-        organizer_id: string,
-        region: string,
-        game: string,
-        version: number,
-        entity: {
-            id: string,
-            name: string,
-            type: string
-        },
-        team?: Team[]
-        created_at: string,
-        updated_at: string
-    }
+    payload: Match
 }

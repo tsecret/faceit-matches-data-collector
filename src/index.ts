@@ -5,8 +5,9 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import config from './config';
 
-import { updateDomain } from './api';
-import { Hook } from './types';
+import { updateDomain, updateURL, getWebhooksSettings, updateWebhooksSettings } from './api';
+import { Hook, Match, Player, Settings } from './types';
+import { now, getListFromFirestore, getUsersFromMatch, addUsersToSettings } from './utils';
 
 const app = express()
 app.use(cors({ origin: true }));
@@ -39,11 +40,21 @@ const checkMatches = async () => {
     }
 }
 
-init();
+// init();
 
-app.post('/domain/update', async (req, res) => {
+app.get('/', (req, res) => {
+    return res.status(200).json("ok")
+})
+
+app.post('/update/domain', async (req, res) => {
     const { name } = req.body;
     const response: any = await updateDomain(name);
+    return res.status(200).json();
+})
+
+app.post('/update/url', async (req, res) => {
+    const { url } = req.body;
+    const response: any = await updateURL(url);
     return res.status(200).json();
 })
 
@@ -59,4 +70,58 @@ app.post('/webhooks/add', async (req, res) => {
     return res.status(200).json();
 })
 
-app.listen(config.PORT, () => { console.log(`Running on port: ${config.PORT}`) })
+app.get('/stats', async (req, res) => {
+    try{
+        const matches: Match[] = await firebase.firestore().collection('raw-matches').get()
+        .then(snapshot => getListFromFirestore(snapshot))
+        
+        const players: string[] = []
+
+        matches.forEach((match: Match) => {
+            const matchPlayers: string[] = getUsersFromMatch(match);
+            matchPlayers.forEach((player: string) => { if(!players.includes(player)) players.push(player) })
+        })
+
+
+        return res.status(200).json({
+            matches: matches.length,
+            players: players.length
+        })
+    } catch(err){
+        console.error(err)
+        return res.status(500).json()
+    }
+})
+
+app.post('/sync', async (req, res) => {
+    try{
+        const startTime = now();
+        const matches: Match[] = await firebase.firestore().collection('raw-matches').get()
+        .then(snapshot => getListFromFirestore(snapshot))
+        
+        const players: string[] = []
+
+        matches.forEach((match: Match) => {
+            const matchPlayers: string[] = getUsersFromMatch(match);
+            matchPlayers.forEach((player: string) => { if(!players.includes(player)) players.push(player) })
+        })
+
+        let settings: Settings = await getWebhooksSettings();
+        const playersBefore = settings.restrictions.length;
+        const savedUsers = settings.restrictions.map((user: any) => user.value)
+        const mergedUsers = [...new Set([ ...players, ...savedUsers ])];
+        settings = addUsersToSettings(mergedUsers, settings)
+        const newSettings: Settings = await updateWebhooksSettings(settings);
+
+        return res.status(200).json({
+            playersBefore,
+            playersAfter: newSettings.restrictions.length,
+            operationTime: now() - startTime
+        })
+    } catch(err){
+        console.error(err)
+        return res.status(500).json()
+    }
+})
+
+app.listen(config.PORT, config.HOST, () => { console.log(`Running on port: ${config.PORT}`) })

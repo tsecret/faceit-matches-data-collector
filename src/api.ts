@@ -22,3 +22,9 @@ export const updateDomain = async (domain: string) => {
     settings.url = `https://${domain}.loca.lt/webhooks/add`;
     return await updateWebhooksSettings(settings);
 }
+
+export const updateURL = async (url: string) => {
+    const settings: Settings = await getWebhooksSettings();
+    settings.url = url;
+    return await updateWebhooksSettings(settings);
+}
