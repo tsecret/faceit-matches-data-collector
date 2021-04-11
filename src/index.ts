@@ -5,7 +5,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import config from './config';
 
-import { updateDomain } from './api';
+import { updateDomain, updateURL } from './api';
 import { Hook } from './types';
 
 const app = express()
@@ -18,13 +18,13 @@ firebase.initializeApp(config.FIREBASE_CONFIG);
 let matches: any = [];
 
 const init = async () => {
-    const tunnel = await localtunnel({ port: config.PORT, subdomain: config.SUBDOMAIN })
+    // const tunnel = await localtunnel({ port: config.PORT, subdomain: config.SUBDOMAIN })
   
-    console.log(`Tunnel ready at ${tunnel.url}`);
+    // console.log(`Tunnel ready at ${tunnel.url}`);
   
-    tunnel.on('close', () => {
-        console.log("Tunnel closed")
-    });
+    // tunnel.on('close', () => {
+    //     console.log("Tunnel closed")
+    // });
 
     // const settings = await getWebhooksSettings();
 }
@@ -39,11 +39,17 @@ const checkMatches = async () => {
     }
 }
 
-init();
+// init();
 
-app.post('/domain/update', async (req, res) => {
+app.post('/update/domain', async (req, res) => {
     const { name } = req.body;
     const response: any = await updateDomain(name);
+    return res.status(200).json();
+})
+
+app.post('/update/url', async (req, res) => {
+    const { url } = req.body;
+    const response: any = await updateURL(url);
     return res.status(200).json();
 })
 
@@ -59,4 +65,4 @@ app.post('/webhooks/add', async (req, res) => {
     return res.status(200).json();
 })
 
-app.listen(config.PORT, () => { console.log(`Running on port: ${config.PORT}`) })
+app.listen(config.PORT, config.HOST, () => { console.log(`Running on port: ${config.PORT}`) })

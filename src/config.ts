@@ -1,6 +1,7 @@
 export default {
-    PORT: 9000,
-    SUBDOMAIN: "faugur-matches-test",
+    PORT: 5000,
+    // SUBDOMAIN: "faugur-matches-test",
+    HOST: "http://147.30.50.4:5000",
     MATCHES_BATCH: 100,
     FACEIT_API_KEY: "Bearer 4a7c8bbf-0d27-4f6e-a558-9938888a5a9f",
     FACEIT_AUTH_TOKEN: "4a7c8bbf-0d27-4f6e-a558-9938888a5a9f",
