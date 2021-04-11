@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateDomain = exports.updateWebhooksSettings = exports.getWebhooksSettings = void 0;
+exports.updateURL = exports.updateDomain = exports.updateWebhooksSettings = exports.getWebhooksSettings = void 0;
 const axios_1 = __importDefault(require("axios"));
 const config_1 = __importDefault(require("./config"));
 const headers = { "Authorization": `Bearer ${config_1.default.FACEIT_AUTH_TOKEN}` };
@@ -35,3 +35,9 @@ const updateDomain = (domain) => __awaiter(void 0, void 0, void 0, function* () 
     return yield exports.updateWebhooksSettings(settings);
 });
 exports.updateDomain = updateDomain;
+const updateURL = (url) => __awaiter(void 0, void 0, void 0, function* () {
+    const settings = yield exports.getWebhooksSettings();
+    settings.url = url;
+    return yield exports.updateWebhooksSettings(settings);
+});
+exports.updateURL = updateURL;

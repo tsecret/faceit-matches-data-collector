@@ -19,13 +19,13 @@ firebase.initializeApp(config.FIREBASE_CONFIG);
 let matches: any = [];
 
 const init = async () => {
-    const tunnel = await localtunnel({ port: config.PORT, subdomain: config.SUBDOMAIN })
+    // const tunnel = await localtunnel({ port: config.PORT, subdomain: config.SUBDOMAIN })
   
-    console.log(`Tunnel ready at ${tunnel.url}`);
+    // console.log(`Tunnel ready at ${tunnel.url}`);
   
-    tunnel.on('close', () => {
-        console.log("Tunnel closed")
-    });
+    // tunnel.on('close', () => {
+    //     console.log("Tunnel closed")
+    // });
 
     // const settings = await getWebhooksSettings();
 }
