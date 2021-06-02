@@ -28,3 +28,31 @@ export const updateURL = async (url: string) => {
     settings.url = url;
     return await updateWebhooksSettings(settings);
 }
+
+export const getMatch = async (matchID: string) => {
+    return await axios.get(`https://api.faceit.com/match/v2/match/${matchID}`)
+    .then((res: { data: any; }) => res.data.payload)
+    .catch((error: {response: any}) => { console.log(error) })
+}
+
+export const getPlayerInfo = async (id:string) => {
+    return await axios.get(`https://api.faceit.com/core/v1/users/${id}`)
+    .then((res: { data: any; }) => res.data)
+    .catch((error: any) => {console.log(error)})
+}
+
+export const getPlayersInfo = async (ids: string[]) => {
+    let promises = ids.map((id: any) => axios.get(`https://api.faceit.com/core/v1/users/${id}`))
+    return await axios.all(promises).then(axios.spread((...responses: any[]) => responses.map(response => response.data.payload)))
+}
+
+export const getPlayerMatches = async (id: string) => {
+    return await axios.get(`https://api.faceit.com/stats/v1/stats/time/users/${id}/games/csgo`)
+    .then((res: { data: any; }) => res.data)
+    .catch((error: any) => {console.log(error);})
+}
+
+export const getPlayersMatches = async (ids: string[]) => {
+    const promises = ids.map((id: any) => axios.get(`https://api.faceit.com/stats/v1/stats/time/users/${id}/games/csgo`))
+    return await axios.all(promises).then(axios.spread((...responses: any[]) => responses.map(response => response.data)))
+}

@@ -1,4 +1,5 @@
 import { Settings, Player, Match } from './types';
+import {FaceitIndex} from './constants';
 
 export const now = () => new Date().getTime();
 
@@ -26,4 +27,17 @@ export const getListFromFirestore = (snapshot: any) => {
     let items: any = [];
     snapshot.forEach((doc: any) => { items.push(doc.data()) })
     return items;
+}
+
+export const convertMatches = (matches: any[]) => {
+    let indexes = Object.keys(FaceitIndex)
+    return matches.map((match: any) => {
+        for(const [key, value] of Object.entries(match)){
+            if(indexes.includes(key)){
+                match[FaceitIndex[key]] = value;
+                delete match[key];
+            }
+        }
+        return match;
+    })
 }

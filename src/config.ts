@@ -1,10 +1,10 @@
 export default {
     PORT: 5000,
     SUBDOMAIN: "faugur-matches-test",
-    HOST: "192.168.1.88",
+    HOST: "192.168.1.65",
     MATCHES_BATCH: 100,
-    FACEIT_API_KEY: "Bearer df85c227-140f-4258-9596-e3dccd50ccae",
-    FACEIT_AUTH_TOKEN: "df85c227-140f-4258-9596-e3dccd50ccae",
+    FACEIT_API_KEY: "Bearer 62571876-7a54-497c-9705-77d2e38ca3bd",
+    FACEIT_AUTH_TOKEN: "62571876-7a54-497c-9705-77d2e38ca3bd",
     FACEIT_APP_ID: "dd3b8614-b1a9-438f-9ab0-a24269620738",
     FIREBASE_CONFIG: {
     apiKey: "AIzaSyCr9YbS8NSmqdZ0bVcYrBvj069UBOzf74o",

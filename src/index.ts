@@ -5,9 +5,30 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import config from './config';
 
-import { updateDomain, updateURL, getWebhooksSettings, updateWebhooksSettings } from './api';
-import { Hook, Match, Player, Settings } from './types';
-import { now, getListFromFirestore, getUsersFromMatch, addUsersToSettings } from './utils';
+import {
+    updateDomain,
+    updateURL,
+    getWebhooksSettings,
+    updateWebhooksSettings,
+    getMatch,
+    getPlayerMatches,
+    getPlayersMatches,
+    getPlayersInfo
+} from './api';
+
+import {
+    Hook,
+    Match,
+    Player, 
+    Settings
+} from './types';
+
+import {
+    now, 
+    getListFromFirestore, 
+    getUsersFromMatch, 
+    addUsersToSettings
+} from './utils';
 
 const app = express()
 app.use(cors({ origin: true }));
@@ -122,6 +143,18 @@ app.post('/sync', async (req, res) => {
         console.error(err)
         return res.status(500).json()
     }
+})
+
+app.post('/parse', async (req, res) => {
+    const { matchID } = req.body;
+
+    const match: Match = await getMatch(matchID);
+    const players: string[] = getUsersFromMatch(match);
+
+    const playersStats = await getPlayersMatches(players);;
+    const playersInfo = await getPlayersInfo(players);
+
+    return res.status(200).json(playersInfo)
 })
 
 app.listen(config.PORT, config.HOST, () => { console.log(`Running on port: ${config.PORT}`) })
