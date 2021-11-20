@@ -17,7 +17,7 @@ params={
 
 def getSettings():
     starTime = time.time()
-    
+
     res = requests.get("https://api.faceit.com/webhooks/v1/subscriptions", headers=headers, params=params)
     elapsed = round(time.time() - starTime, 2)
     print("Request took", elapsed, "seconds")
@@ -56,10 +56,29 @@ async def set_settings(newSettings: newSettings):
 class Payload(BaseModel):
     event: str
     payload: object
-    
+
+    class Config:
+        arbitrary_types_allowed = True
+
+mat = None
 
 @app.post('/webhook')
 async def add_webhook(payload: Payload):
     if payload.event != "match_status_finished": return
-    print(payload.payload.id)
+    print(payload.payload['id'])
+    global mat
+    mat = payload.payload
+    players = []
+    for team in payload.payload['teams']:
+        players.extend([player['id'] for player in team['roster']])
+
+    with open('players.txt', 'a', encoding='utf-8') as f:
+        for player in players:
+            f.write(player + "\n")
+
     return
+
+@app.get('/webhook')
+async def get_webhook():
+    global mat
+    return mat
